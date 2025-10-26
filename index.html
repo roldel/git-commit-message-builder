@@ -43,18 +43,22 @@
     button:hover {
       background-color: #0059c1;
     }
-    pre {
-      background: #f0f0f0;
-      padding: 1rem;
-      border-radius: 4px;
-      white-space: pre-wrap;
-      position: relative;
+
+    h2 {
+      margin-top: 3rem;
     }
+
+    /* Output area */
+    .output-container {
+      margin-top: 1rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end; /* aligns copy button to the right */
+    }
+
     .copy-btn {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      padding: 0.25rem 0.75rem;
+      padding: 0.4rem 0.9rem;
       font-size: 0.9rem;
       background-color: #0070f3;
       color: white;
@@ -62,8 +66,18 @@
       border-radius: 4px;
       cursor: pointer;
     }
+
     .copy-btn:hover {
       background-color: #0059c1;
+    }
+
+    pre {
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      width: 100%;
+      box-sizing: border-box;
     }
   </style>
 </head>
@@ -81,6 +95,7 @@
       <option value="refactor">refactor</option>
       <option value="optimize">optimize</option>
       <option value="document">document</option>
+      <option value="style">style</option>
       <option value="test">test</option>
       <option value="maintain">maintain</option>
     </select>
@@ -111,7 +126,8 @@
   </form>
 
   <h2>Generated Commit Message</h2>
-  <div style="position: relative;">
+  
+  <div class="output-container">
     <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
     <pre id="output">(waiting for input...)</pre>
   </div>
@@ -143,21 +159,13 @@
 
       let fullMessage = header;
 
-      if (body) {
-        fullMessage += `\n\n${body}`;
-      }
+      if (body) fullMessage += `\n\n${body}`;
 
       const fullFooter = [];
       if (isBreaking) {
-        if (breakingDetail) {
-          fullFooter.push(`BREAKING CHANGE: ${breakingDetail}`);
-        } else {
-          fullFooter.push(`BREAKING CHANGE: <explain what changed>`);
-        }
+        fullFooter.push(`BREAKING CHANGE: ${breakingDetail || '<explain what changed>'}`);
       }
-      if (footer) {
-        fullFooter.push(footer);
-      }
+      if (footer) fullFooter.push(footer);
 
       if (fullFooter.length > 0) {
         fullMessage += `\n\n${fullFooter.join('\n')}`;
