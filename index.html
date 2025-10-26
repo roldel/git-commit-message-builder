@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conventional Commit Message Builder</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      font-size: 1.75rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #0070f3;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #0059c1;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.9rem;
+      background-color: #0070f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      background-color: #0059c1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Commit Message Builder</h1>
+  
+  <form id="commitForm">
+    <label for="type">Commit type</label>
+    <select id="type" required>
+      <option value="">-- Select type --</option>
+      <option value="add">add</option>
+      <option value="fix">fix</option>
+      <option value="update">update</option>
+      <option value="remove">remove</option>
+      <option value="refactor">refactor</option>
+      <option value="optimize">optimize</option>
+      <option value="document">document</option>
+      <option value="test">test</option>
+      <option value="maintain">maintain</option>
+    </select>
+
+    <label for="scope">Scope (optional)</label>
+    <input type="text" id="scope" placeholder="e.g. auth, UI, db" />
+
+    <label>
+      <input type="checkbox" id="breakingChange" />
+      Breaking change
+    </label>
+
+    <label for="subject">Short description</label>
+    <input type="text" id="subject" required placeholder="e.g. fix token refresh logic" maxlength="72" />
+
+    <label for="body">Body (optional)</label>
+    <textarea id="body" placeholder="Explain the what and why of the change"></textarea>
+
+    <label for="footer">Footer (optional)</label>
+    <textarea id="footer" placeholder="e.g. Closes #123"></textarea>
+
+    <div id="breakingDetailContainer" style="display: none">
+      <label for="breakingDetail">Breaking change details</label>
+      <textarea id="breakingDetail" placeholder="Explain what breaks and what to do"></textarea>
+    </div>
+
+    <button type="submit">Generate Commit Message</button>
+  </form>
+
+  <h2>Generated Commit Message</h2>
+  <div style="position: relative;">
+    <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+    <pre id="output">(waiting for input...)</pre>
+  </div>
+
+  <script>
+    const form = document.getElementById('commitForm');
+    const output = document.getElementById('output');
+    const breakingChange = document.getElementById('breakingChange');
+    const breakingDetailContainer = document.getElementById('breakingDetailContainer');
+
+    breakingChange.addEventListener('change', () => {
+      breakingDetailContainer.style.display = breakingChange.checked ? 'block' : 'none';
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const type = document.getElementById('type').value;
+      const scopeRaw = document.getElementById('scope').value.trim();
+      const subject = document.getElementById('subject').value.trim();
+      const body = document.getElementById('body').value.trim();
+      const footer = document.getElementById('footer').value.trim();
+      const isBreaking = breakingChange.checked;
+      const breakingDetail = document.getElementById('breakingDetail').value.trim();
+
+      const scope = scopeRaw ? `(${scopeRaw})` : '';
+      const exclamation = isBreaking ? '!' : '';
+      const header = `${type}${scope}${exclamation}: ${subject}`;
+
+      let fullMessage = header;
+
+      if (body) {
+        fullMessage += `\n\n${body}`;
+      }
+
+      const fullFooter = [];
+      if (isBreaking) {
+        if (breakingDetail) {
+          fullFooter.push(`BREAKING CHANGE: ${breakingDetail}`);
+        } else {
+          fullFooter.push(`BREAKING CHANGE: <explain what changed>`);
+        }
+      }
+      if (footer) {
+        fullFooter.push(footer);
+      }
+
+      if (fullFooter.length > 0) {
+        fullMessage += `\n\n${fullFooter.join('\n')}`;
+      }
+
+      output.textContent = fullMessage;
+    });
+
+    function copyToClipboard() {
+      const text = output.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => (btn.textContent = 'Copy'), 2000);
+      });
+    }
+  </script>
+</body>
+</html>
