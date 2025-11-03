@@ -1,132 +1,213 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Conventional Commit Message Builder</title>
+  
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
   <style>
+    :root {
+      --bg: #0b0f13;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --surface: #0b0f13; /* match background for dark */
+      --input-bg: #151b23; /* slightly lighter than bg for fields */
+      --surface-2: #0f172a;
+      --border: #1f2937;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --ring: 0 0 0 3px rgba(59, 130, 246, 0.35);
+    }
+
+    [data-theme="light"] {
+      --bg: #f9fafb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --surface: #ffffff;
+      --input-bg: #ffffff;
+      --surface-2: #f3f4f6;
+      --border: #e5e7eb;
+      --primary: #0070f3;
+      --primary-hover: #0059c1;
+      --ring: 0 0 0 3px rgba(0, 112, 243, 0.35);
+    }
+
+    [data-theme="dark"] { color-scheme: dark; }
+    [data-theme="light"] { color-scheme: light; }
+
+    html, body {
+      height: 100%;
+    }
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       margin: 2rem;
-      background-color: #f9f9f9;
-      color: #333;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
-    h1 {
-      font-size: 1.75rem;
-    }
+
+    h1 { font-size: 1.75rem; margin-top: 0; }
+    h2 { margin-top: 3rem; }
+
     label {
       display: block;
       margin-top: 1rem;
       font-weight: 600;
     }
+
     input[type="text"], textarea, select {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.6rem 0.7rem;
       font-size: 1rem;
-      margin-top: 0.25rem;
+      margin-top: 0.35rem;
       box-sizing: border-box;
+      color: var(--text);
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
-    textarea {
-      min-height: 80px;
-      resize: vertical;
+
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: var(--ring);
     }
+
+    textarea { min-height: 100px; resize: vertical; }
+    input[type="checkbox"] { transform: translateY(1px); }
+
     button {
-      margin-top: 2rem;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 1.1rem;
       font-size: 1rem;
-      background-color: #0070f3;
-      color: white;
+      background-color: var(--primary);
+      color: #fff;
       border: none;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 10px;
+      transition: background-color 0.15s ease, transform 0.03s ease, box-shadow 0.15s ease;
     }
-    button:hover {
-      background-color: #0059c1;
-    }
+    button:hover { background-color: var(--primary-hover); }
+    button:active { transform: translateY(1px); }
+    button:focus-visible { box-shadow: var(--ring); outline: none; }
 
-    h2 {
-      margin-top: 3rem;
-    }
+    .copy-btn { padding: 0.5rem 0.9rem; font-size: 0.95rem; }
 
-    /* Output area */
     .output-container {
       margin-top: 1rem;
       position: relative;
       display: flex;
       flex-direction: column;
-      align-items: flex-end; /* aligns copy button to the right */
-    }
-
-    .copy-btn {
-      padding: 0.4rem 0.9rem;
-      font-size: 0.9rem;
-      background-color: #0070f3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .copy-btn:hover {
-      background-color: #0059c1;
+      align-items: flex-end;
+      gap: 0.5rem;
     }
 
     pre {
-      background: #f0f0f0;
+      background: var(--surface-2);
       padding: 1rem;
-      border-radius: 4px;
+      border-radius: 10px;
       white-space: pre-wrap;
       width: 100%;
       box-sizing: border-box;
+      border: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.8rem;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      line-height: 1;
+    }
+    .theme-toggle:hover { background: var(--surface-2); }
+    .theme-toggle .icon { font-size: 1.1rem; }
+    .theme-toggle .label { font-size: 0.95rem; }
+
+    .muted { color: var(--muted); }
+
+    a { color: var(--primary); }
+    a:hover { color: var(--primary-hover); }
   </style>
 </head>
 <body>
-  <h1>Commit Message Builder</h1>
-  
-  <form id="commitForm">
-    <label for="type">Commit type</label>
-    <select id="type" required>
-      <option value="">-- Select type --</option>
-      <option value="add">add</option>
-      <option value="fix">fix</option>
-      <option value="feat">feat</option>
-      <option value="docs">docs</option>
-      <option value="refactor">refactor</option>
-      <option value="chore">chore</option>
-      <option value="test">test</option>
-      <option value="style">style</option>
-      <option value="optimize">optimize</option>
-      <option value="remove">remove</option>
-    </select>
+  <button id="themeToggle" class="theme-toggle" aria-pressed="false" aria-label="Toggle color theme" title="Toggle color theme">
+    <span class="icon" aria-hidden="true">🌙</span>
+    <span class="label">Dark</span>
+  </button>
 
-    <label for="scope">Scope (optional)</label>
-    <input type="text" id="scope" placeholder="e.g. auth, UI, db" />
+  <h1>Commit Message Builder <span class="muted">· Conventional Commits</span></h1>
 
-    <label>
-      <input type="checkbox" id="breakingChange" />
-      Breaking change
-    </label>
+  <div class="card">
+    <form id="commitForm">
+      <label for="type">Commit type</label>
+      <select id="type" required>
+        <option value="">-- Select type --</option>
+        <option value="add">add</option>
+        <option value="fix">fix</option>
+        <option value="feat">feat</option>
+        <option value="docs">docs</option>
+        <option value="refactor">refactor</option>
+        <option value="chore">chore</option>
+        <option value="test">test</option>
+        <option value="style">style</option>
+        <option value="optimize">optimize</option>
+        <option value="remove">remove</option>
+      </select>
 
-    <label for="subject">Short description</label>
-    <input type="text" id="subject" required placeholder="e.g. fix token refresh logic" maxlength="72" />
+      <label for="scope">Scope (optional)</label>
+      <input type="text" id="scope" placeholder="e.g. auth, UI, db" />
 
-    <label for="body">Body (optional)</label>
-    <textarea id="body" placeholder="Explain the what and why of the change"></textarea>
+      <label>
+        <input type="checkbox" id="breakingChange" />
+        Breaking change
+      </label>
 
-    <label for="footer">Footer (optional)</label>
-    <textarea id="footer" placeholder="e.g. Closes #123"></textarea>
+      <label for="subject">Short description</label>
+      <input type="text" id="subject" required placeholder="e.g. fix token refresh logic" maxlength="72" />
 
-    <div id="breakingDetailContainer" style="display: none">
-      <label for="breakingDetail">Breaking change details</label>
-      <textarea id="breakingDetail" placeholder="Explain what breaks and what to do"></textarea>
-    </div>
+      <label for="body">Body (optional)</label>
+      <textarea id="body" placeholder="Explain the what and why of the change"></textarea>
 
-    <button type="submit">Generate Commit Message</button>
-  </form>
+      <label for="footer">Footer (optional)</label>
+      <textarea id="footer" placeholder="e.g. Closes #123"></textarea>
+
+      <div id="breakingDetailContainer" style="display: none">
+        <label for="breakingDetail">Breaking change details</label>
+        <textarea id="breakingDetail" placeholder="Explain what breaks and what to do"></textarea>
+      </div>
+
+      <button type="submit" style="margin-top: 1.25rem;">Generate Commit Message</button>
+    </form>
+  </div>
 
   <h2>Generated Commit Message</h2>
-  
   <div class="output-container">
     <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
     <pre id="output">(waiting for input...)</pre>
@@ -151,7 +232,7 @@
       const body = document.getElementById('body').value.trim();
       const footer = document.getElementById('footer').value.trim();
       const isBreaking = breakingChange.checked;
-      const breakingDetail = document.getElementById('breakingDetail').value.trim();
+      const breakingDetail = document.getElementById('breakingDetail').value?.trim?.() || '';
 
       const scope = scopeRaw ? `(${scopeRaw})` : '';
       const exclamation = isBreaking ? '!' : '';
@@ -178,10 +259,37 @@
       const text = output.textContent;
       navigator.clipboard.writeText(text).then(() => {
         const btn = document.querySelector('.copy-btn');
+        const original = btn.textContent;
         btn.textContent = 'Copied!';
-        setTimeout(() => (btn.textContent = 'Copy'), 2000);
+        setTimeout(() => (btn.textContent = original), 1500);
       });
     }
+
+    const toggleBtn = document.getElementById('themeToggle');
+
+    function currentTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'dark';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      try { localStorage.setItem('theme', theme); } catch (e) {}
+      updateToggleUI(theme);
+    }
+
+    function updateToggleUI(theme) {
+      const isDark = theme === 'dark';
+      toggleBtn.setAttribute('aria-pressed', String(isDark));
+      toggleBtn.querySelector('.icon').textContent = isDark ? '🌙' : '☀️';
+      toggleBtn.querySelector('.label').textContent = isDark ? 'Dark' : 'Light';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+    });
+
+    updateToggleUI(currentTheme());
   </script>
 </body>
 </html>
