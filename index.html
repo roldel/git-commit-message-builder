@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Conventional Commit Message Builder</title>
-  
+
   <script>
     (function () {
       try {
@@ -22,8 +22,8 @@
       --bg: #0b0f13;
       --text: #e5e7eb;
       --muted: #9ca3af;
-      --surface: #0b0f13; /* match background for dark */
-      --input-bg: #151b23; /* slightly lighter than bg for fields */
+      --surface: #0b0f13;
+      --input-bg: #151b23;
       --surface-2: #0f172a;
       --border: #1f2937;
       --primary: #3b82f6;
@@ -47,9 +47,7 @@
     [data-theme="dark"] { color-scheme: dark; }
     [data-theme="light"] { color-scheme: light; }
 
-    html, body {
-      height: 100%;
-    }
+    html, body { height: 100%; }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       margin: 2rem;
@@ -203,14 +201,15 @@
         <textarea id="breakingDetail" placeholder="Explain what breaks and what to do"></textarea>
       </div>
 
-      <button type="submit" style="margin-top: 1.25rem;">Generate Commit Message</button>
+      <!-- Button is optional now; acts as a manual regenerate -->
+      <button type="submit" style="margin-top: 1.25rem;">Regenerate (optional)</button>
     </form>
   </div>
 
   <h2>Generated Commit Message</h2>
   <div class="output-container">
     <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
-    <pre id="output">(waiting for input...)</pre>
+    <pre id="output" aria-live="polite" aria-atomic="true">(waiting for type & subject...)</pre>
   </div>
 
   <script>
@@ -219,20 +218,27 @@
     const breakingChange = document.getElementById('breakingChange');
     const breakingDetailContainer = document.getElementById('breakingDetailContainer');
 
-    breakingChange.addEventListener('change', () => {
+    // Show/hide breaking detail field
+    function updateBreakingDetailVisibility() {
       breakingDetailContainer.style.display = breakingChange.checked ? 'block' : 'none';
-    });
+    }
+    breakingChange.addEventListener('change', updateBreakingDetailVisibility);
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
+    // Build the message from current inputs
+    function buildMessage() {
       const type = document.getElementById('type').value;
       const scopeRaw = document.getElementById('scope').value.trim();
       const subject = document.getElementById('subject').value.trim();
       const body = document.getElementById('body').value.trim();
       const footer = document.getElementById('footer').value.trim();
       const isBreaking = breakingChange.checked;
-      const breakingDetail = document.getElementById('breakingDetail').value?.trim?.() || '';
+      const breakingDetail = document.getElementById('breakingDetail')?.value?.trim?.() || '';
+
+      // Friendly placeholder if required fields missing
+      if (!type || !subject) {
+        output.textContent = '(waiting for type & subject...)';
+        return;
+      }
 
       const scope = scopeRaw ? `(${scopeRaw})` : '';
       const exclamation = isBreaking ? '!' : '';
@@ -253,8 +259,37 @@
       }
 
       output.textContent = fullMessage;
+    }
+
+    // Debounce helper
+    function debounce(fn, ms = 120) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+    const updatePreview = debounce(() => {
+      updateBreakingDetailVisibility();
+      buildMessage();
     });
 
+    // Wire up live updates
+    document.getElementById('type').addEventListener('change', updatePreview);
+    document.getElementById('scope').addEventListener('input', updatePreview);
+    document.getElementById('subject').addEventListener('input', updatePreview);
+    document.getElementById('body').addEventListener('input', updatePreview);
+    document.getElementById('footer').addEventListener('input', updatePreview);
+    document.getElementById('breakingDetail').addEventListener('input', updatePreview);
+    breakingChange.addEventListener('change', updatePreview);
+
+    // Optional manual regenerate
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      buildMessage();
+    });
+
+    // Copy button
     function copyToClipboard() {
       const text = output.textContent;
       navigator.clipboard.writeText(text).then(() => {
@@ -264,7 +299,10 @@
         setTimeout(() => (btn.textContent = original), 1500);
       });
     }
+    // Expose for inline onclick
+    window.copyToClipboard = copyToClipboard;
 
+    // Theme toggle
     const toggleBtn = document.getElementById('themeToggle');
 
     function currentTheme() {
@@ -289,7 +327,10 @@
       setTheme(next);
     });
 
+    // Init on load
     updateToggleUI(currentTheme());
+    updateBreakingDetailVisibility();
+    buildMessage();
   </script>
 </body>
 </html>
