@@ -52,16 +52,10 @@ body {
 /* Header Layout */
 .main-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Equal space between Title, Reset, Theme */
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   padding: 0 0.5rem;
-}
-
-.title-group {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
 }
 
 h1 {
@@ -115,26 +109,26 @@ button {
 .btn-primary {
   background-color: var(--primary);
   color: #fff;
-  padding: 0.6rem 1.1rem; /* Slightly smaller to fit header line nicely */
+  padding: 0.6rem 1.1rem;
   font-size: 0.95rem;
 }
 .btn-primary:hover { background-color: var(--primary-hover); }
 .btn-primary:active { transform: translateY(1px); }
 .btn-primary:focus-visible { box-shadow: var(--ring); outline: none; }
 
-/* Reset Button */
+/* Reset Button (Made more visible) */
 .reset-btn {
-  background-color: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
+  background-color: var(--surface); /* Visible card background */
+  border: 1px solid var(--border);  /* Distinct border */
+  color: var(--text);               /* High contrast text */
+  padding: 0.55rem 1.25rem;
   font-size: 1rem;
-  padding: 0.4rem 0.8rem;
 }
 
 .reset-btn:hover {
   border-color: var(--danger);
   color: var(--danger);
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(239, 68, 68, 0.08); /* Subtle red tint on hover */
 }
 
 /* Output Section Layout */
@@ -142,13 +136,13 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2.5rem; /* Space from form */
-  margin-bottom: 0.75rem; /* Space before code block */
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
   padding: 0 0.5rem;
 }
 
 h2 { 
-  margin: 0; /* Reset margins to align with button */
+  margin: 0;
   font-size: 1.4rem;
 }
 
