@@ -7,7 +7,6 @@
   
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Inline script to prevent theme flashing on load -->
   <script>
     (function () {
       try {
@@ -77,11 +76,13 @@
     </form>
   </div>
 
-  <h2>Generated Commit Message</h2>
-  <div class="output-container">
+  <!-- New Layout: Title and Button in one row -->
+  <div class="output-header">
+    <h2>Generated Commit Message</h2>
     <button class="btn-primary copy-btn" onclick="copyToClipboard()">Copy</button>
-    <pre id="output" aria-live="polite" aria-atomic="true">(Start typing or select a type to generate...)</pre>
   </div>
+  
+  <pre id="output" aria-live="polite" aria-atomic="true">(Start typing or select a type to generate...)</pre>
 
   <script src="script.js" defer></script>
 </body>
